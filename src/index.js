@@ -60,10 +60,10 @@ function handleAddCardFormSubmit(event) {
 }
 
 // Image - Modal Handlers
-function handleImageClick(cardData) {
-  imageModalImg.src = cardData.link
-  imageModalImg.alt = cardData.name
-  imageModalCaption.textContent = cardData.name
+function handleImageClick(name, link) {
+  imageModalImg.src = link
+  imageModalImg.alt = name
+  imageModalCaption.textContent = name
   openModal(imageModal)
 }
 
@@ -83,8 +83,8 @@ addCardButton.addEventListener('click', () => {
 
 editProfileForm.addEventListener('submit', handleProfileFormSubmit)
 addCardForm.addEventListener('submit', handleAddCardFormSubmit)
-document.addEventListener('mousedown', handleOverlayClose)
 
 modals.forEach(modal => {
   modal.classList.add('popup_is-animated')
+  modal.addEventListener('mousedown', handleOverlayClose)
 })

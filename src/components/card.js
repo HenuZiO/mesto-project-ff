@@ -24,7 +24,7 @@ export function createCard(cardInfo, handleRemoveCard, handleLike, handleImageCl
   })
 
   cardImage.addEventListener('click', () => {
-    handleImageClick(cardInfo)
+    handleImageClick(cardInfo.name, cardInfo.link)
   })
 
   return cardElement

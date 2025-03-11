@@ -9,8 +9,10 @@ export function closeModal(modal) {
 }
 
 function handleCloseModal(event) {
-  const openedModal = document.querySelector('.popup_is-opened')
-  if (openedModal && event.key === 'Escape') return closeModal(openedModal)
+  if (event.key === 'Escape') {
+    const openedModal = document.querySelector('.popup_is-opened')
+    if (openedModal) return closeModal(openedModal)
+  }
 }
 
 export function handleOverlayClose(event) {
