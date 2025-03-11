@@ -27,10 +27,19 @@ const initialCards = [
   }
 ]
 
+// Profile
+const profileName = document.querySelector('.profile__title')
+const profileJob = document.querySelector('.profile__description')
+const editProfileButton = document.querySelector('.profile__edit-button')
+
+// Form - edit profile
+const formElement = document.querySelector('.popup__form')
+const nameInput = formElement.querySelector('.popup__input_type_name')
+const jobInput = formElement.querySelector('.popup__input_type_description')
+
 // Elements
 const cardsList = document.querySelector('.places__list')
 const cardTemplate = document.querySelector('#card-template').content
-const editProfileButton = document.querySelector('.profile__edit-button')
 
 // Modals
 const editProfileModal = document.querySelector('.popup_type_edit')
@@ -56,11 +65,6 @@ function createCard(cardInfo, handleRemoveCard) {
   return cardElement
 }
 
-initialCards.forEach(card => {
-  const cardElement = createCard(card, removeCard)
-  cardsList.append(cardElement)
-})
-
 function openModal(modal) {
   modal.classList.add('popup_is-opened')
   document.addEventListener('keydown', handleCloseModal)
@@ -76,8 +80,14 @@ function handleCloseModal(event) {
   if (openedModal && event.key === 'Escape') return closeModal(openedModal)
 }
 
+function fillProfileForm() {
+  nameInput.value = profileName.textContent
+  jobInput.value = profileJob.textContent
+}
+
 editProfileButton.addEventListener('click', () => {
   openModal(editProfileModal)
+  fillProfileForm()
 })
 
 document.addEventListener('mousedown', event => {
@@ -86,4 +96,19 @@ document.addEventListener('mousedown', event => {
   if (event.target.classList.contains('popup') || event.target.classList.contains('popup__close')) {
     closeModal(popup)
   }
+})
+
+function handleFormSubmit(event) {
+  event.preventDefault()
+  const formData = event.target.elements
+  profileName.textContent = formData.name.value
+  profileJob.textContent = formData.description.value
+  closeModal(editProfileModal)
+}
+
+formElement.addEventListener('submit', handleFormSubmit)
+
+initialCards.forEach(card => {
+  const cardElement = createCard(card, removeCard)
+  cardsList.append(cardElement)
 })
