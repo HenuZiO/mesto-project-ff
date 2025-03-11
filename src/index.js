@@ -50,16 +50,22 @@ const cardTemplate = document.querySelector('#card-template').content
 // Modals
 const editProfileModal = document.querySelector('.popup_type_edit')
 const addCardModal = document.querySelector('.popup_type_new-card')
+const imageModal = document.querySelector('.popup_type_image')
+
+// Modal - Card image
+const imageModalImg = imageModal.querySelector('.popup__image')
+const imageModalCaption = imageModal.querySelector('.popup__caption')
 
 function removeCard(cardElement) {
   cardElement.remove()
 }
 
-function createCard(cardInfo, handleRemoveCard) {
+function createCard(cardInfo, handleRemoveCard, handleLike, handleImageClick) {
   const cardElement = cardTemplate.querySelector('.card').cloneNode(true)
   const cardImage = cardElement.querySelector('.card__image')
   const cardTitle = cardElement.querySelector('.card__title')
   const cardDeleteButton = cardElement.querySelector('.card__delete-button')
+  const cardLikeButton = cardElement.querySelector('.card__like-button')
 
   cardImage.src = cardInfo.link
   cardImage.alt = cardInfo.name
@@ -69,7 +75,19 @@ function createCard(cardInfo, handleRemoveCard) {
     handleRemoveCard(cardElement)
   })
 
+  cardLikeButton.addEventListener('click', () => {
+    handleLike(cardLikeButton)
+  })
+
+  cardImage.addEventListener('click', () => {
+    handleImageClick(cardInfo)
+  })
+
   return cardElement
+}
+
+function toggleLike(likeButton) {
+  likeButton.classList.toggle('card__like-button_is-active')
 }
 
 function openModal(modal) {
@@ -102,9 +120,17 @@ document.addEventListener('mousedown', event => {
 
 function handleProfileFormSubmit(event) {
   event.preventDefault()
+
   profileName.textContent = nameInput.value
   profileJob.textContent = jobInput.value
   closeModal(editProfileModal)
+}
+
+function handleImageClick(cardData) {
+  imageModalImg.src = cardData.link
+  imageModalImg.alt = cardData.name
+  imageModalCaption.textContent = cardData.name
+  openModal(imageModal)
 }
 
 function handleAddCardFormSubmit(event) {
@@ -112,11 +138,11 @@ function handleAddCardFormSubmit(event) {
 
   const name = cardNameInput.value
   const link = cardLinkInput.value
-  const cardElement = createCard({ name, link }, removeCard)
+  const cardElement = createCard({ name, link }, removeCard, toggleLike, handleImageClick)
 
   cardsList.prepend(cardElement)
-  event.target.reset()
 
+  event.target.reset()
   closeModal(addCardModal)
 }
 
@@ -133,6 +159,6 @@ editProfileForm.addEventListener('submit', handleProfileFormSubmit)
 addCardForm.addEventListener('submit', handleAddCardFormSubmit)
 
 initialCards.forEach(card => {
-  const cardElement = createCard(card, removeCard)
+  const cardElement = createCard(card, removeCard, toggleLike, handleImageClick)
   cardsList.append(cardElement)
 })
