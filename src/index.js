@@ -34,11 +34,16 @@ const editProfileButton = document.querySelector('.profile__edit-button')
 const addCardButton = document.querySelector('.profile__add-button')
 
 // Form - edit profile
-const formElement = document.querySelector('.popup__form')
-const nameInput = formElement.querySelector('.popup__input_type_name')
-const jobInput = formElement.querySelector('.popup__input_type_description')
+const editProfileForm = document.querySelector('form[name="edit-profile"]')
+const nameInput = editProfileForm.querySelector('.popup__input_type_name')
+const jobInput = editProfileForm.querySelector('.popup__input_type_description')
 
-// Elements
+// Form - add card
+const addCardForm = document.querySelector('form[name="new-place"]')
+const cardNameInput = addCardForm.querySelector('.popup__input_type_card-name')
+const cardLinkInput = addCardForm.querySelector('.popup__input_type_url')
+
+// Cards elements
 const cardsList = document.querySelector('.places__list')
 const cardTemplate = document.querySelector('#card-template').content
 
@@ -87,15 +92,6 @@ function fillProfileForm() {
   jobInput.value = profileJob.textContent
 }
 
-editProfileButton.addEventListener('click', () => {
-  openModal(editProfileModal)
-  fillProfileForm()
-})
-
-addCardButton.addEventListener('click', () => {
-  openModal(addCardModal)
-})
-
 document.addEventListener('mousedown', event => {
   const popup = event.target.closest('.popup')
 
@@ -104,15 +100,37 @@ document.addEventListener('mousedown', event => {
   }
 })
 
-function handleFormSubmit(event) {
+function handleProfileFormSubmit(event) {
   event.preventDefault()
-  const formData = event.target.elements
-  profileName.textContent = formData.name.value
-  profileJob.textContent = formData.description.value
+  profileName.textContent = nameInput.value
+  profileJob.textContent = jobInput.value
   closeModal(editProfileModal)
 }
 
-formElement.addEventListener('submit', handleFormSubmit)
+function handleAddCardFormSubmit(event) {
+  event.preventDefault()
+
+  const name = cardNameInput.value
+  const link = cardLinkInput.value
+  const cardElement = createCard({ name, link }, removeCard)
+
+  cardsList.prepend(cardElement)
+  event.target.reset()
+
+  closeModal(addCardModal)
+}
+
+editProfileButton.addEventListener('click', () => {
+  fillProfileForm()
+  openModal(editProfileModal)
+})
+
+addCardButton.addEventListener('click', () => {
+  openModal(addCardModal)
+})
+
+editProfileForm.addEventListener('submit', handleProfileFormSubmit)
+addCardForm.addEventListener('submit', handleAddCardFormSubmit)
 
 initialCards.forEach(card => {
   const cardElement = createCard(card, removeCard)
