@@ -48,6 +48,7 @@ const cardsList = document.querySelector('.places__list')
 const cardTemplate = document.querySelector('#card-template').content
 
 // Modals
+const modals = document.querySelectorAll('.popup')
 const editProfileModal = document.querySelector('.popup_type_edit')
 const addCardModal = document.querySelector('.popup_type_new-card')
 const imageModal = document.querySelector('.popup_type_image')
@@ -55,6 +56,10 @@ const imageModal = document.querySelector('.popup_type_image')
 // Modal - Card image
 const imageModalImg = imageModal.querySelector('.popup__image')
 const imageModalCaption = imageModal.querySelector('.popup__caption')
+
+modals.forEach(modal => {
+  modal.classList.add('popup_is-animated')
+})
 
 function removeCard(cardElement) {
   cardElement.remove()
