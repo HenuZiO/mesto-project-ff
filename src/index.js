@@ -31,6 +31,7 @@ const initialCards = [
 const profileName = document.querySelector('.profile__title')
 const profileJob = document.querySelector('.profile__description')
 const editProfileButton = document.querySelector('.profile__edit-button')
+const addCardButton = document.querySelector('.profile__add-button')
 
 // Form - edit profile
 const formElement = document.querySelector('.popup__form')
@@ -43,6 +44,7 @@ const cardTemplate = document.querySelector('#card-template').content
 
 // Modals
 const editProfileModal = document.querySelector('.popup_type_edit')
+const addCardModal = document.querySelector('.popup_type_new-card')
 
 function removeCard(cardElement) {
   cardElement.remove()
@@ -88,6 +90,10 @@ function fillProfileForm() {
 editProfileButton.addEventListener('click', () => {
   openModal(editProfileModal)
   fillProfileForm()
+})
+
+addCardButton.addEventListener('click', () => {
+  openModal(addCardModal)
 })
 
 document.addEventListener('mousedown', event => {
