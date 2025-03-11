@@ -57,10 +57,6 @@ const imageModal = document.querySelector('.popup_type_image')
 const imageModalImg = imageModal.querySelector('.popup__image')
 const imageModalCaption = imageModal.querySelector('.popup__caption')
 
-modals.forEach(modal => {
-  modal.classList.add('popup_is-animated')
-})
-
 function removeCard(cardElement) {
   cardElement.remove()
 }
@@ -110,18 +106,17 @@ function handleCloseModal(event) {
   if (openedModal && event.key === 'Escape') return closeModal(openedModal)
 }
 
+function handleOverlayClose(event) {
+  const popup = event.target.closest('.popup')
+  if (event.target.classList.contains('popup') || event.target.classList.contains('popup__close')) {
+    closeModal(popup)
+  }
+}
+
 function fillProfileForm() {
   nameInput.value = profileName.textContent
   jobInput.value = profileJob.textContent
 }
-
-document.addEventListener('mousedown', event => {
-  const popup = event.target.closest('.popup')
-
-  if (event.target.classList.contains('popup') || event.target.classList.contains('popup__close')) {
-    closeModal(popup)
-  }
-})
 
 function handleProfileFormSubmit(event) {
   event.preventDefault()
@@ -129,13 +124,6 @@ function handleProfileFormSubmit(event) {
   profileName.textContent = nameInput.value
   profileJob.textContent = jobInput.value
   closeModal(editProfileModal)
-}
-
-function handleImageClick(cardData) {
-  imageModalImg.src = cardData.link
-  imageModalImg.alt = cardData.name
-  imageModalCaption.textContent = cardData.name
-  openModal(imageModal)
 }
 
 function handleAddCardFormSubmit(event) {
@@ -151,6 +139,18 @@ function handleAddCardFormSubmit(event) {
   closeModal(addCardModal)
 }
 
+function handleImageClick(cardData) {
+  imageModalImg.src = cardData.link
+  imageModalImg.alt = cardData.name
+  imageModalCaption.textContent = cardData.name
+  openModal(imageModal)
+}
+
+initialCards.forEach(card => {
+  const cardElement = createCard(card, removeCard, toggleLike, handleImageClick)
+  cardsList.append(cardElement)
+})
+
 editProfileButton.addEventListener('click', () => {
   fillProfileForm()
   openModal(editProfileModal)
@@ -162,8 +162,8 @@ addCardButton.addEventListener('click', () => {
 
 editProfileForm.addEventListener('submit', handleProfileFormSubmit)
 addCardForm.addEventListener('submit', handleAddCardFormSubmit)
+document.addEventListener('mousedown', handleOverlayClose)
 
-initialCards.forEach(card => {
-  const cardElement = createCard(card, removeCard, toggleLike, handleImageClick)
-  cardsList.append(cardElement)
+modals.forEach(modal => {
+  modal.classList.add('popup_is-animated')
 })
