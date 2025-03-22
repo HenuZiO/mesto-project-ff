@@ -3,6 +3,7 @@ import './styles/index.css'
 import { initialCards } from './components/cards.js'
 import { createCard, removeCard, toggleLike } from './components/card.js'
 import { openModal, closeModal, handleOverlayClose } from './components/modal.js'
+import { enableValidation, clearValidation } from './components/validation.js'
 
 // Profile elements
 const profileName = document.querySelector('.profile__title')
@@ -33,6 +34,15 @@ const cardLinkInput = addCardForm.querySelector('.popup__input_type_url')
 const imageModalImg = imageModal.querySelector('.popup__image')
 const imageModalCaption = imageModal.querySelector('.popup__caption')
 
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__input_error-active'
+}
+
 // Profile - Modal Handlers
 function fillProfileForm() {
   nameInput.value = profileName.textContent
@@ -56,6 +66,7 @@ function handleAddCardFormSubmit(event) {
   cardsList.prepend(cardElement)
 
   event.target.reset()
+  clearValidation(event.target, validationConfig)
   closeModal(addCardModal)
 }
 
@@ -74,6 +85,7 @@ initialCards.forEach(card => {
 
 editProfileButton.addEventListener('click', () => {
   fillProfileForm()
+  clearValidation(editProfileForm, validationConfig)
   openModal(editProfileModal)
 })
 
@@ -88,3 +100,5 @@ modals.forEach(modal => {
   modal.classList.add('popup_is-animated')
   modal.addEventListener('mousedown', handleOverlayClose)
 })
+
+enableValidation(validationConfig)
