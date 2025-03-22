@@ -7,7 +7,10 @@ export function closeModal(modal) {
   const form = modal.querySelector('.popup__form')
   modal.classList.remove('popup_is-opened')
   document.removeEventListener('keydown', handleCloseModal)
-  form.reset()
+
+  if (form) {
+    form.reset()
+  }
 }
 
 function handleCloseModal(event) {

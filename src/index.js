@@ -1,13 +1,16 @@
 import './styles/index.css'
 
-import { initialCards } from './components/cards.js'
+// import { initialCards } from './components/cards.js'
 import { createCard, removeCard, toggleLike } from './components/card.js'
 import { openModal, closeModal, handleOverlayClose } from './components/modal.js'
 import { enableValidation, clearValidation } from './components/validation.js'
 
+const initialCards = []
+
 // Profile elements
 const profileName = document.querySelector('.profile__title')
 const profileJob = document.querySelector('.profile__description')
+const profileImage = document.querySelector('.profile__image')
 const editProfileButton = document.querySelector('.profile__edit-button')
 const addCardButton = document.querySelector('.profile__add-button')
 
@@ -78,11 +81,6 @@ function handleImageClick(name, link) {
   openModal(imageModal)
 }
 
-initialCards.forEach(card => {
-  const cardElement = createCard(card, removeCard, toggleLike, handleImageClick)
-  cardsList.append(cardElement)
-})
-
 editProfileButton.addEventListener('click', () => {
   fillProfileForm()
   clearValidation(editProfileForm, validationConfig)
@@ -102,3 +100,38 @@ modals.forEach(modal => {
 })
 
 enableValidation(validationConfig)
+
+const BASE_API_URL = 'https://mesto.nomoreparties.co/v1/'
+const GROUP_ID = 'wff-cohort-35'
+const API_TOKEN = '77c56277-51e8-4458-ab64-19fe10c2087a'
+
+const headers = {
+  authorization: API_TOKEN
+}
+
+const getPersonalInfo = () => {
+  return fetch(`${BASE_API_URL}${GROUP_ID}/users/me`, { headers }).then(res => {
+    if (res.ok) return res.json()
+    return Promise.reject(`Ошибка: ${res.status}`)
+  })
+}
+
+const getInitialCards = () => {
+  return fetch(`${BASE_API_URL}${GROUP_ID}/cards`, { headers }).then(res => {
+    if (res.ok) return res.json()
+    return Promise.reject(`Ошибка: ${res.status}`)
+  })
+}
+
+Promise.all([getPersonalInfo(), getInitialCards()])
+  .then(([userData, cards]) => {
+    profileName.textContent = userData.name
+    profileJob.textContent = userData.about
+    profileImage.style.backgroundImage = `url(${userData.avatar})`
+
+    cards.forEach(card => {
+      const cardElement = createCard(card, removeCard, toggleLike, handleImageClick)
+      cardsList.append(cardElement)
+    })
+  })
+  .catch(err => console.error('Error loading data:', err))
