@@ -1,14 +1,18 @@
 import './styles/index.css'
 
-// import { initialCards } from './components/cards.js'
-import { createCard, removeCard, toggleLike } from './components/card.js'
+import { createCard, handleCardRemove, handleCardLike } from './components/card.js'
 import { openModal, closeModal, handleOverlayClose } from './components/modal.js'
 import { enableValidation, clearValidation } from './components/validation.js'
+import { apiGetUserInfo, apiGetCards, apiUpdateUserInfo, apiAddCard } from './components/api.js'
 
-const initialCards = []
+const profile = {
+  _id: '',
+  name: '',
+  about: '',
+  avatar: ''
+}
 
 // Profile elements
-export let profileId = ''
 const profileName = document.querySelector('.profile__title')
 const profileJob = document.querySelector('.profile__description')
 const profileImage = document.querySelector('.profile__image')
@@ -49,38 +53,40 @@ const validationConfig = {
 
 // Profile - Modal Handlers
 function fillProfileForm() {
-  nameInput.value = profileName.textContent
-  jobInput.value = profileJob.textContent
+  nameInput.value = profile.name
+  jobInput.value = profile.about
 }
 
 function handleProfileFormSubmit(event) {
   event.preventDefault()
-  profileName.textContent = nameInput.value
-  profileJob.textContent = jobInput.value
-  updateProfile(nameInput.value, jobInput.value)
-  closeModal(editProfileModal)
+
+  apiUpdateUserInfo(nameInput.value, jobInput.value)
+    .then(updatedUserData => {
+      profile.name = updatedUserData.name
+      profile.about = updatedUserData.about
+      profileName.textContent = profile.name
+      profileJob.textContent = profile.about
+      closeModal(editProfileModal)
+    })
+    .catch(err => console.error('Ошибка при обновлении профиля:', err))
 }
 
 // Add card - Modal Handlers
 function handleAddCardFormSubmit(event) {
   event.preventDefault()
+
   const name = cardNameInput.value
   const link = cardLinkInput.value
 
-  fetch(`${BASE_API_URL}${GROUP_ID}/cards`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      name,
-      link
-    })
-  })
-    .then(res => {
-      if (res.ok) return res.json()
-      return Promise.reject(`Ошибка: ${res.status}`)
-    })
-    .then(newCard => {
-      const cardElement = createCard(newCard, removeCard, toggleLike, handleImageClick)
+  apiAddCard(name, link)
+    .then(newCardData => {
+      const cardElement = createCard(
+        newCardData,
+        handleCardRemove,
+        handleCardLike,
+        handleImageClick,
+        profile._id
+      )
       cardsList.prepend(cardElement)
 
       event.target.reset()
@@ -118,50 +124,26 @@ modals.forEach(modal => {
 
 enableValidation(validationConfig)
 
-export const BASE_API_URL = 'https://mesto.nomoreparties.co/v1/'
-export const GROUP_ID = 'wff-cohort-35'
-export const API_TOKEN = '77c56277-51e8-4458-ab64-19fe10c2087a'
-
-export const headers = {
-  authorization: API_TOKEN,
-  'Content-Type': 'application/json'
-}
-
-const getPersonalInfo = () => {
-  return fetch(`${BASE_API_URL}${GROUP_ID}/users/me`, { headers }).then(res => {
-    if (res.ok) return res.json()
-    return Promise.reject(`Ошибка: ${res.status}`)
-  })
-}
-
-const getInitialCards = () => {
-  return fetch(`${BASE_API_URL}${GROUP_ID}/cards`, { headers }).then(res => {
-    if (res.ok) return res.json()
-    return Promise.reject(`Ошибка: ${res.status}`)
-  })
-}
-
-Promise.all([getPersonalInfo(), getInitialCards()])
+Promise.all([apiGetUserInfo(), apiGetCards()])
   .then(([userData, cards]) => {
-    profileId = userData._id
-    profileName.textContent = userData.name
-    profileJob.textContent = userData.about
-    profileImage.style.backgroundImage = `url(${userData.avatar})`
+    profile._id = userData._id
+    profile.name = userData.name
+    profile.about = userData.about
+    profile.avatar = userData.avatar
+
+    profileName.textContent = profile.name
+    profileJob.textContent = profile.about
+    profileImage.style.backgroundImage = `url(${profile.avatar})`
 
     cards.forEach(card => {
-      const cardElement = createCard(card, removeCard, toggleLike, handleImageClick)
+      const cardElement = createCard(
+        card,
+        handleCardRemove,
+        handleCardLike,
+        handleImageClick,
+        profile._id
+      )
       cardsList.append(cardElement)
     })
   })
   .catch(err => console.error('Error loading data:', err))
-
-function updateProfile(name, about) {
-  return fetch(`${BASE_API_URL}/${GROUP_ID}/users/me`, {
-    method: 'PATCH',
-    headers,
-    body: JSON.stringify({
-      name,
-      about
-    })
-  })
-}
