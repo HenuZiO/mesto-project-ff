@@ -10,10 +10,12 @@ export function createCard(cardInfo, handleRemoveCard, handleLike, handleImageCl
   const cardTitle = cardElement.querySelector('.card__title')
   const cardDeleteButton = cardElement.querySelector('.card__delete-button')
   const cardLikeButton = cardElement.querySelector('.card__like-button')
+  const cardLikesCounter = cardElement.querySelector('.card__like-counter')
 
   cardImage.src = cardInfo.link
   cardImage.alt = cardInfo.name
   cardTitle.textContent = cardInfo.name
+  cardLikesCounter.textContent = cardInfo.likes.length
 
   cardDeleteButton.addEventListener('click', () => {
     handleRemoveCard(cardElement)
