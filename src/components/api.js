@@ -14,7 +14,7 @@ export const apiGetUserInfo = () => {
   })
 }
 
-export const apiUpdateProfileAvatar = avatarUrl => {
+export const apiUpdateUserAvatar = avatarUrl => {
   return fetch(`${BASE_API_URL}${GROUP_ID}/users/me/avatar`, {
     method: 'PATCH',
     headers,
@@ -22,13 +22,6 @@ export const apiUpdateProfileAvatar = avatarUrl => {
       avatar: avatarUrl
     })
   }).then(res => {
-    if (res.ok) return res.json()
-    return Promise.reject(`Ошибка: ${res.status}`)
-  })
-}
-
-export const apiGetCards = () => {
-  return fetch(`${BASE_API_URL}${GROUP_ID}/cards`, { headers }).then(res => {
     if (res.ok) return res.json()
     return Promise.reject(`Ошибка: ${res.status}`)
   })
@@ -43,6 +36,13 @@ export const apiUpdateUserInfo = (name, about) => {
       about
     })
   }).then(res => {
+    if (res.ok) return res.json()
+    return Promise.reject(`Ошибка: ${res.status}`)
+  })
+}
+
+export const apiGetCards = () => {
+  return fetch(`${BASE_API_URL}${GROUP_ID}/cards`, { headers }).then(res => {
     if (res.ok) return res.json()
     return Promise.reject(`Ошибка: ${res.status}`)
   })

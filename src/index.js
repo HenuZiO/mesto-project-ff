@@ -14,7 +14,7 @@ import {
   apiGetCards,
   apiUpdateUserInfo,
   apiAddCard,
-  apiUpdateProfileAvatar
+  apiUpdateUserAvatar
 } from './components/api.js'
 
 const profile = {
@@ -130,7 +130,7 @@ function handleEditAvatarFormSubmit(event) {
   event.preventDefault()
   pendingOnSave(editAvatarForm)
 
-  apiUpdateProfileAvatar(avatarInput.value)
+  apiUpdateUserAvatar(avatarInput.value)
     .then(updatedUserData => {
       profile.avatar = updatedUserData.avatar
       profileImage.style.backgroundImage = `url(${profile.avatar})`
