@@ -56,6 +56,7 @@ function handleProfileFormSubmit(event) {
   event.preventDefault()
   profileName.textContent = nameInput.value
   profileJob.textContent = jobInput.value
+  updateProfile(nameInput.value, jobInput.value)
   closeModal(editProfileModal)
 }
 
@@ -64,13 +65,28 @@ function handleAddCardFormSubmit(event) {
   event.preventDefault()
   const name = cardNameInput.value
   const link = cardLinkInput.value
-  const cardElement = createCard({ name, link }, removeCard, toggleLike, handleImageClick)
 
-  cardsList.prepend(cardElement)
+  fetch(`${BASE_API_URL}${GROUP_ID}/cards`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      name,
+      link
+    })
+  })
+    .then(res => {
+      if (res.ok) return res.json()
+      return Promise.reject(`Ошибка: ${res.status}`)
+    })
+    .then(newCard => {
+      const cardElement = createCard(newCard, removeCard, toggleLike, handleImageClick)
+      cardsList.prepend(cardElement)
 
-  event.target.reset()
-  clearValidation(event.target, validationConfig)
-  closeModal(addCardModal)
+      event.target.reset()
+      clearValidation(event.target, validationConfig)
+      closeModal(addCardModal)
+    })
+    .catch(err => console.error('Ошибка при создании карточки:', err))
 }
 
 // Image - Modal Handlers
@@ -106,7 +122,8 @@ const GROUP_ID = 'wff-cohort-35'
 const API_TOKEN = '77c56277-51e8-4458-ab64-19fe10c2087a'
 
 const headers = {
-  authorization: API_TOKEN
+  authorization: API_TOKEN,
+  'Content-Type': 'application/json'
 }
 
 const getPersonalInfo = () => {
@@ -135,3 +152,14 @@ Promise.all([getPersonalInfo(), getInitialCards()])
     })
   })
   .catch(err => console.error('Error loading data:', err))
+
+function updateProfile(name, about) {
+  return fetch(`${BASE_API_URL}/${GROUP_ID}/users/me`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({
+      name,
+      about
+    })
+  })
+}
