@@ -1,9 +1,21 @@
 import './styles/index.css'
 
 import { createCard, handleCardRemove, handleCardLike } from './components/card.js'
-import { openModal, closeModal, handleOverlayClose } from './components/modal.js'
+import {
+  openModal,
+  closeModal,
+  handleOverlayClose,
+  pendingOnSave,
+  pendingOffSave
+} from './components/modal.js'
 import { enableValidation, clearValidation } from './components/validation.js'
-import { apiGetUserInfo, apiGetCards, apiUpdateUserInfo, apiAddCard } from './components/api.js'
+import {
+  apiGetUserInfo,
+  apiGetCards,
+  apiUpdateUserInfo,
+  apiAddCard,
+  apiUpdateProfileAvatar
+} from './components/api.js'
 
 const profile = {
   _id: '',
@@ -27,20 +39,25 @@ const modals = document.querySelectorAll('.popup')
 const editProfileModal = document.querySelector('.popup_type_edit')
 const addCardModal = document.querySelector('.popup_type_new-card')
 const imageModal = document.querySelector('.popup_type_image')
+const editAvatarModal = document.querySelector('.popup_type_edit-avatar')
 
-// Modal - edit profile
+// Modal Content- edit profile
 const editProfileForm = document.querySelector('form[name="edit-profile"]')
 const nameInput = editProfileForm.querySelector('.popup__input_type_name')
 const jobInput = editProfileForm.querySelector('.popup__input_type_description')
 
-// Modal - add card
+// Modal Content - add card
 const addCardForm = document.querySelector('form[name="new-place"]')
 const cardNameInput = addCardForm.querySelector('.popup__input_type_card-name')
 const cardLinkInput = addCardForm.querySelector('.popup__input_type_url')
 
-// Modal - Card image
+// Modal Content - card image
 const imageModalImg = imageModal.querySelector('.popup__image')
 const imageModalCaption = imageModal.querySelector('.popup__caption')
+
+// Modal Content - edit avatar
+const editAvatarForm = document.querySelector('form[name="edit-avatar"]')
+const avatarInput = editAvatarForm.querySelector('.popup__input_type_url')
 
 const validationConfig = {
   formSelector: '.popup__form',
@@ -59,6 +76,7 @@ function fillProfileForm() {
 
 function handleProfileFormSubmit(event) {
   event.preventDefault()
+  pendingOnSave(editProfileForm)
 
   apiUpdateUserInfo(nameInput.value, jobInput.value)
     .then(updatedUserData => {
@@ -69,11 +87,13 @@ function handleProfileFormSubmit(event) {
       closeModal(editProfileModal)
     })
     .catch(err => console.error('Ошибка при обновлении профиля:', err))
+    .finally(() => pendingOffSave(editProfileForm))
 }
 
 // Add card - Modal Handlers
 function handleAddCardFormSubmit(event) {
   event.preventDefault()
+  pendingOnSave(addCardForm)
 
   const name = cardNameInput.value
   const link = cardLinkInput.value
@@ -94,6 +114,7 @@ function handleAddCardFormSubmit(event) {
       closeModal(addCardModal)
     })
     .catch(err => console.error('Ошибка при создании карточки:', err))
+    .finally(() => pendingOffSave(addCardForm))
 }
 
 // Image - Modal Handlers
@@ -102,6 +123,21 @@ function handleImageClick(name, link) {
   imageModalImg.alt = name
   imageModalCaption.textContent = name
   openModal(imageModal)
+}
+
+// Edit avatar - Modal Handlers
+function handleEditAvatarFormSubmit(event) {
+  event.preventDefault()
+  pendingOnSave(editAvatarForm)
+
+  apiUpdateProfileAvatar(avatarInput.value)
+    .then(updatedUserData => {
+      profile.avatar = updatedUserData.avatar
+      profileImage.style.backgroundImage = `url(${profile.avatar})`
+      closeModal(editAvatarModal)
+    })
+    .catch(err => console.error('Ошибка при обновлении аватара:', err))
+    .finally(() => pendingOffSave(editAvatarForm))
 }
 
 editProfileButton.addEventListener('click', () => {
@@ -114,8 +150,14 @@ addCardButton.addEventListener('click', () => {
   openModal(addCardModal)
 })
 
+profileImage.addEventListener('click', () => {
+  clearValidation(editAvatarForm, validationConfig)
+  openModal(editAvatarModal)
+})
+
 editProfileForm.addEventListener('submit', handleProfileFormSubmit)
 addCardForm.addEventListener('submit', handleAddCardFormSubmit)
+editAvatarForm.addEventListener('submit', handleEditAvatarFormSubmit)
 
 modals.forEach(modal => {
   modal.classList.add('popup_is-animated')

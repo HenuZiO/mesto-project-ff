@@ -14,6 +14,19 @@ export const apiGetUserInfo = () => {
   })
 }
 
+export const apiUpdateProfileAvatar = avatarUrl => {
+  return fetch(`${BASE_API_URL}${GROUP_ID}/users/me/avatar`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({
+      avatar: avatarUrl
+    })
+  }).then(res => {
+    if (res.ok) return res.json()
+    return Promise.reject(`Ошибка: ${res.status}`)
+  })
+}
+
 export const apiGetCards = () => {
   return fetch(`${BASE_API_URL}${GROUP_ID}/cards`, { headers }).then(res => {
     if (res.ok) return res.json()

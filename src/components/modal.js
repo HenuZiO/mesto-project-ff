@@ -26,3 +26,15 @@ export function handleOverlayClose(event) {
     closeModal(popup)
   }
 }
+
+export function pendingOnSave(form) {
+  const button = form.querySelector('.popup__button')
+  button.textContent = 'Сохранение...'
+  button.disabled = true
+}
+
+export function pendingOffSave(form) {
+  const button = form.querySelector('.popup__button')
+  button.textContent = 'Сохранить'
+  button.disabled = false
+}
