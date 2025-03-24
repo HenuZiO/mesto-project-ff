@@ -8,6 +8,7 @@ import { enableValidation, clearValidation } from './components/validation.js'
 const initialCards = []
 
 // Profile elements
+export let profileId = ''
 const profileName = document.querySelector('.profile__title')
 const profileJob = document.querySelector('.profile__description')
 const profileImage = document.querySelector('.profile__image')
@@ -117,11 +118,11 @@ modals.forEach(modal => {
 
 enableValidation(validationConfig)
 
-const BASE_API_URL = 'https://mesto.nomoreparties.co/v1/'
-const GROUP_ID = 'wff-cohort-35'
-const API_TOKEN = '77c56277-51e8-4458-ab64-19fe10c2087a'
+export const BASE_API_URL = 'https://mesto.nomoreparties.co/v1/'
+export const GROUP_ID = 'wff-cohort-35'
+export const API_TOKEN = '77c56277-51e8-4458-ab64-19fe10c2087a'
 
-const headers = {
+export const headers = {
   authorization: API_TOKEN,
   'Content-Type': 'application/json'
 }
@@ -142,6 +143,7 @@ const getInitialCards = () => {
 
 Promise.all([getPersonalInfo(), getInitialCards()])
   .then(([userData, cards]) => {
+    profileId = userData._id
     profileName.textContent = userData.name
     profileJob.textContent = userData.about
     profileImage.style.backgroundImage = `url(${userData.avatar})`
