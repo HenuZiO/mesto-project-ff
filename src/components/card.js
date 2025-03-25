@@ -1,13 +1,14 @@
-import { apiDeleteCard, apiToggleCardLike } from './api.js'
+import { apiToggleCardLike } from './api.js'
+import { openModal } from './modal.js'
 
 const cardTemplate = document.querySelector('#card-template').content
 
 export function createCard(
   cardInfo,
-  handleRemoveCard,
   handleLike,
   handleImageClick,
-  currentUserId
+  currentUserId,
+  confirmDeleteModal
 ) {
   const cardElement = cardTemplate.querySelector('.card').cloneNode(true)
   const cardImage = cardElement.querySelector('.card__image')
@@ -16,6 +17,7 @@ export function createCard(
   const cardLikeButton = cardElement.querySelector('.card__like-button')
   const cardLikesCounter = cardElement.querySelector('.card__like-counter')
 
+  cardElement.dataset.cardId = cardInfo._id
   cardImage.src = cardInfo.link
   cardImage.alt = cardInfo.name
   cardTitle.textContent = cardInfo.name
@@ -32,7 +34,8 @@ export function createCard(
   }
 
   cardDeleteButton.addEventListener('click', () => {
-    handleRemoveCard(cardElement, cardInfo._id)
+    confirmDeleteModal.dataset.cardId = cardInfo._id
+    openModal(confirmDeleteModal)
   })
 
   cardLikeButton.addEventListener('click', () => {
@@ -44,14 +47,6 @@ export function createCard(
   })
 
   return cardElement
-}
-
-export function handleCardRemove(cardElement, cardId) {
-  apiDeleteCard(cardId)
-    .then(() => {
-      cardElement.remove()
-    })
-    .catch(err => console.error('Ошибка при удалении карточки:', err))
 }
 
 export function handleCardLike(likeButton, cardId) {

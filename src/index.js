@@ -1,6 +1,6 @@
 import './styles/index.css'
 
-import { createCard, handleCardRemove, handleCardLike } from './components/card.js'
+import { createCard, handleCardLike } from './components/card.js'
 import {
   openModal,
   closeModal,
@@ -14,7 +14,8 @@ import {
   apiGetCards,
   apiUpdateUserInfo,
   apiAddCard,
-  apiUpdateUserAvatar
+  apiUpdateUserAvatar,
+  apiDeleteCard
 } from './components/api.js'
 
 const profile = {
@@ -37,14 +38,19 @@ const cardsList = document.querySelector('.places__list')
 // Modals
 const modals = document.querySelectorAll('.popup')
 const editProfileModal = document.querySelector('.popup_type_edit')
+const editAvatarModal = document.querySelector('.popup_type_edit-avatar')
 const addCardModal = document.querySelector('.popup_type_new-card')
 const imageModal = document.querySelector('.popup_type_image')
-const editAvatarModal = document.querySelector('.popup_type_edit-avatar')
+const confirmDeleteModal = document.querySelector('.popup_type_confirm-delete')
 
 // Modal Content- edit profile
 const editProfileForm = document.querySelector('form[name="edit-profile"]')
 const nameInput = editProfileForm.querySelector('.popup__input_type_name')
 const jobInput = editProfileForm.querySelector('.popup__input_type_description')
+
+// Modal Content - edit avatar
+const editAvatarForm = document.querySelector('form[name="edit-avatar"]')
+const avatarInput = editAvatarForm.querySelector('.popup__input_type_url')
 
 // Modal Content - add card
 const addCardForm = document.querySelector('form[name="new-place"]')
@@ -55,9 +61,8 @@ const cardLinkInput = addCardForm.querySelector('.popup__input_type_url')
 const imageModalImg = imageModal.querySelector('.popup__image')
 const imageModalCaption = imageModal.querySelector('.popup__caption')
 
-// Modal Content - edit avatar
-const editAvatarForm = document.querySelector('form[name="edit-avatar"]')
-const avatarInput = editAvatarForm.querySelector('.popup__input_type_url')
+// Modal Content - confirm delete
+const confirmDeleteForm = confirmDeleteModal.querySelector('form[name="confirm-delete"]')
 
 const validationConfig = {
   formSelector: '.popup__form',
@@ -76,7 +81,7 @@ function fillProfileForm() {
 
 function handleProfileFormSubmit(event) {
   event.preventDefault()
-  pendingOnSave(editProfileForm)
+  pendingOnSave(editProfileForm, 'Сохранение...')
 
   apiUpdateUserInfo(nameInput.value, jobInput.value)
     .then(updatedUserData => {
@@ -87,13 +92,13 @@ function handleProfileFormSubmit(event) {
       closeModal(editProfileModal)
     })
     .catch(err => console.error('Ошибка при обновлении профиля:', err))
-    .finally(() => pendingOffSave(editProfileForm))
+    .finally(() => pendingOffSave(editProfileForm, 'Сохранить'))
 }
 
 // Add card - Modal Handlers
 function handleAddCardFormSubmit(event) {
   event.preventDefault()
-  pendingOnSave(addCardForm)
+  pendingOnSave(addCardForm, 'Создание...')
 
   const name = cardNameInput.value
   const link = cardLinkInput.value
@@ -102,10 +107,10 @@ function handleAddCardFormSubmit(event) {
     .then(newCardData => {
       const cardElement = createCard(
         newCardData,
-        handleCardRemove,
         handleCardLike,
         handleImageClick,
-        profile._id
+        profile._id,
+        confirmDeleteModal
       )
       cardsList.prepend(cardElement)
 
@@ -114,7 +119,7 @@ function handleAddCardFormSubmit(event) {
       closeModal(addCardModal)
     })
     .catch(err => console.error('Ошибка при создании карточки:', err))
-    .finally(() => pendingOffSave(addCardForm))
+    .finally(() => pendingOffSave(addCardForm, 'Создать'))
 }
 
 // Image - Modal Handlers
@@ -128,7 +133,7 @@ function handleImageClick(name, link) {
 // Edit avatar - Modal Handlers
 function handleEditAvatarFormSubmit(event) {
   event.preventDefault()
-  pendingOnSave(editAvatarForm)
+  pendingOnSave(editAvatarForm, 'Сохранение...')
 
   apiUpdateUserAvatar(avatarInput.value)
     .then(updatedUserData => {
@@ -137,7 +142,23 @@ function handleEditAvatarFormSubmit(event) {
       closeModal(editAvatarModal)
     })
     .catch(err => console.error('Ошибка при обновлении аватара:', err))
-    .finally(() => pendingOffSave(editAvatarForm))
+    .finally(() => pendingOffSave(editAvatarForm, 'Сохранить'))
+}
+
+function handleConfirmDeleteFormSubmit(event) {
+  event.preventDefault()
+  pendingOnSave(confirmDeleteForm, 'Удаление...')
+
+  const cardId = event.target.closest('.popup').dataset.cardId
+  const cardElement = document.querySelector(`.card[data-card-id="${cardId}"]`)
+
+  apiDeleteCard(cardId)
+    .then(() => {
+      cardElement.remove()
+      closeModal(confirmDeleteModal)
+    })
+    .catch(err => console.error('Ошибка при удалении карточки:', err))
+    .finally(() => pendingOffSave(confirmDeleteForm, 'Да'))
 }
 
 editProfileButton.addEventListener('click', () => {
@@ -147,6 +168,7 @@ editProfileButton.addEventListener('click', () => {
 })
 
 addCardButton.addEventListener('click', () => {
+  clearValidation(addCardForm, validationConfig)
   openModal(addCardModal)
 })
 
@@ -158,6 +180,7 @@ profileImage.addEventListener('click', () => {
 editProfileForm.addEventListener('submit', handleProfileFormSubmit)
 addCardForm.addEventListener('submit', handleAddCardFormSubmit)
 editAvatarForm.addEventListener('submit', handleEditAvatarFormSubmit)
+confirmDeleteForm.addEventListener('submit', handleConfirmDeleteFormSubmit)
 
 modals.forEach(modal => {
   modal.classList.add('popup_is-animated')
@@ -180,10 +203,10 @@ Promise.all([apiGetUserInfo(), apiGetCards()])
     cards.forEach(card => {
       const cardElement = createCard(
         card,
-        handleCardRemove,
         handleCardLike,
         handleImageClick,
-        profile._id
+        profile._id,
+        confirmDeleteModal
       )
       cardsList.append(cardElement)
     })

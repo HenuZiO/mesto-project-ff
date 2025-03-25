@@ -27,14 +27,14 @@ export function handleOverlayClose(event) {
   }
 }
 
-export function pendingOnSave(form) {
+export function pendingOnSave(form, text) {
   const button = form.querySelector('.popup__button')
-  button.textContent = 'Сохранение...'
+  button.textContent = text
   button.disabled = true
 }
 
-export function pendingOffSave(form) {
+export function pendingOffSave(form, text) {
   const button = form.querySelector('.popup__button')
-  button.textContent = 'Сохранить'
+  button.textContent = text
   button.disabled = false
 }
