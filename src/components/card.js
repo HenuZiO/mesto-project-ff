@@ -1,5 +1,4 @@
 import { apiToggleCardLike } from './api.js'
-import { openModal } from './modal.js'
 
 const cardTemplate = document.querySelector('#card-template').content
 
@@ -8,7 +7,7 @@ export function createCard(
   handleLike,
   handleImageClick,
   currentUserId,
-  confirmDeleteModal
+  handleDeleteModalOpen
 ) {
   const cardElement = cardTemplate.querySelector('.card').cloneNode(true)
   const cardImage = cardElement.querySelector('.card__image')
@@ -31,8 +30,7 @@ export function createCard(
     cardDeleteButton.style.display = 'block'
 
     cardDeleteButton.addEventListener('click', () => {
-      confirmDeleteModal.dataset.cardId = cardInfo._id
-      openModal(confirmDeleteModal)
+      handleDeleteModalOpen(cardInfo._id)
     })
   } else {
     cardDeleteButton.style.display = 'none'

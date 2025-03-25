@@ -110,7 +110,7 @@ function handleAddCardFormSubmit(event) {
         handleCardLike,
         handleImageClick,
         profile._id,
-        confirmDeleteModal
+        handleDeleteModalOpen
       )
       cardsList.prepend(cardElement)
 
@@ -143,6 +143,12 @@ function handleEditAvatarFormSubmit(event) {
     })
     .catch(err => console.error('Ошибка при обновлении аватара:', err))
     .finally(() => pendingOffSave(editAvatarForm, 'Сохранить'))
+}
+
+// Delete card - Modal Handlers
+function handleDeleteModalOpen(cardId) {
+  confirmDeleteModal.dataset.cardId = cardId
+  openModal(confirmDeleteModal)
 }
 
 function handleConfirmDeleteFormSubmit(event) {
@@ -206,7 +212,7 @@ Promise.all([apiGetUserInfo(), apiGetCards()])
         handleCardLike,
         handleImageClick,
         profile._id,
-        confirmDeleteModal
+        handleDeleteModalOpen
       )
       cardsList.append(cardElement)
     })
