@@ -149,7 +149,7 @@ function handleConfirmDeleteFormSubmit(event) {
   event.preventDefault()
   pendingOnSave(confirmDeleteForm, 'Удаление...')
 
-  const cardId = event.target.closest('.popup').dataset.cardId
+  const cardId = confirmDeleteModal.dataset.cardId
   const cardElement = document.querySelector(`.card[data-card-id="${cardId}"]`)
 
   apiDeleteCard(cardId)
