@@ -29,14 +29,14 @@ export function createCard(
 
   if (cardInfo.owner && cardInfo.owner._id === currentUserId) {
     cardDeleteButton.style.display = 'block'
+
+    cardDeleteButton.addEventListener('click', () => {
+      confirmDeleteModal.dataset.cardId = cardInfo._id
+      openModal(confirmDeleteModal)
+    })
   } else {
     cardDeleteButton.style.display = 'none'
   }
-
-  cardDeleteButton.addEventListener('click', () => {
-    confirmDeleteModal.dataset.cardId = cardInfo._id
-    openModal(confirmDeleteModal)
-  })
 
   cardLikeButton.addEventListener('click', () => {
     handleLike(cardLikeButton, cardInfo._id)
